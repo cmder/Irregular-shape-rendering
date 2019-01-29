@@ -1,10 +1,12 @@
 package io.agora.circlerender.widget;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.util.Log;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -12,7 +14,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import io.agora.circlerender.objects.Circle;
 import io.agora.circlerender.programs.TextureShaderProgram;
-import io.agora.circlerender.util.MyCameraManager;
+import io.agora.rtc.mediaio.BaseVideoRenderer;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.GL_DEPTH_BUFFER_BIT;
@@ -22,30 +24,32 @@ import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
 import static android.opengl.GLES20.glViewport;
 
-public class CircleRenderer implements GLSurfaceView.Renderer {
-    private static final String TAG = "CircleRenderer";
+public class AgoraCircleRender implements GLSurfaceView.Renderer {
+    private static final String TAG = "AgoraCircleRender";
 
     private final Context mContext;
 
     private int mTextureId = -1;
     private SurfaceTexture mSurfaceTexture;
     private float[] transformMatrix = new float[16];
-    private CircleRendererView mCircleRendererView;
-    private MyCameraManager mMyCameraManager;
+    private AgoraCircleRendererView mCircleRendererView;
     private boolean mIsPreviewStarted;
 
     private Circle mCircle;
 
     private TextureShaderProgram mTextureProgram;
 
-    public CircleRenderer(Context context) {
+    private BaseVideoRenderer mBaseVideoRenderer;
+
+    public AgoraCircleRender(Context context) {
         this.mContext = context;
     }
 
-    public void init(CircleRendererView glSurfaceView, MyCameraManager myCameraManager, boolean isPreviewStarted) {
+    public void init(AgoraCircleRendererView glSurfaceView, BaseVideoRenderer baseVideoRenderer) {
         mCircleRendererView = glSurfaceView;
-        mMyCameraManager = myCameraManager;
-        mIsPreviewStarted = isPreviewStarted;
+        mBaseVideoRenderer = baseVideoRenderer;
+        /*Matrix matrix = new Matrix();
+        matrix.setIdentityM(transformMatrix, 0);*/
     }
 
     /**
@@ -99,8 +103,8 @@ public class CircleRenderer implements GLSurfaceView.Renderer {
     }
 
     public boolean initSurfaceTexture() {
-        if (mMyCameraManager == null || mCircleRendererView == null) {
-            Log.i(TAG, "mCamera or mCircleRendererView is null!");
+        if (mCircleRendererView == null) {
+            Log.i(TAG, "mCircleRendererView is null!");
             return false;
         }
         mSurfaceTexture = new SurfaceTexture(mTextureId);
@@ -110,17 +114,18 @@ public class CircleRenderer implements GLSurfaceView.Renderer {
                 mCircleRendererView.requestRender();
             }
         });
-        mMyCameraManager.setPreviewTexture(mSurfaceTexture);
-        mMyCameraManager.startPreview();
+        ((Activity) mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mBaseVideoRenderer.setRenderSurface(mSurfaceTexture);
+            }
+        });
         return true;
     }
 
     public void destroy() {
         if (mSurfaceTexture != null) {
             mSurfaceTexture.release();
-        }
-        if (mMyCameraManager != null){
-            mMyCameraManager.releaseCamera();
         }
     }
 
