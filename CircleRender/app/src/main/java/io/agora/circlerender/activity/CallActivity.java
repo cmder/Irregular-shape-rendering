@@ -2,15 +2,11 @@ package io.agora.circlerender.activity;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.SurfaceView;
-import android.view.View;
-import android.widget.FrameLayout;
 
 import io.agora.circlerender.R;
 import io.agora.circlerender.widget.AgoraCircleRendererView;
 import io.agora.rtc.IRtcEngineEventHandler;
 import io.agora.rtc.RtcEngine;
-import io.agora.rtc.video.VideoCanvas;
 
 import static io.agora.rtc.mediaio.MediaIO.BufferType.BYTE_ARRAY;
 import static io.agora.rtc.mediaio.MediaIO.PixelFormat.I420;
@@ -28,27 +24,7 @@ public class CallActivity extends BaseActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    //setupRemoteVideo(uid);
-                }
-            });
-        }
-
-        @Override
-        public void onUserOffline(int uid, int reason) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //onRemoteUserLeft();
-                }
-            });
-        }
-
-        @Override
-        public void onUserMuteVideo(final int uid, final boolean muted) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //onRemoteUserVideoMuted(uid, muted);
+                    mRtcEngine.setRemoteVideoRenderer(uid, mAgoraCircleRendererView);
                 }
             });
         }
@@ -72,13 +48,11 @@ public class CallActivity extends BaseActivity {
         super.onDestroy();
         leaveChannel();
         RtcEngine.destroy();
-        mRtcEngine = null;
     }
 
     private void initAgoraEngineAndJoinChannel() {
         initializeAgoraEngine();
         setupVideoProfile();
-        mRtcEngine.setLocalVideoRenderer(mAgoraCircleRendererView);
         joinChannel();
     }
 
@@ -99,37 +73,7 @@ public class CallActivity extends BaseActivity {
         mRtcEngine.joinChannel(null, "demoChannel1", "Extra Optional Data", 0); // if you do not specify the uid, we will generate the uid for you
     }
 
-    private void setupRemoteVideo(int uid) {
-        FrameLayout container = findViewById(R.id.remote_view);
-
-        if (container.getChildCount() >= 1) {
-            return;
-        }
-
-        SurfaceView surfaceView = RtcEngine.CreateRendererView(this);
-        container.addView(surfaceView);
-        mRtcEngine.setupRemoteVideo(new VideoCanvas(surfaceView, VideoCanvas.RENDER_MODE_FIT, uid));
-
-        surfaceView.setTag(uid); // for mark purpose
-    }
-
     private void leaveChannel() {
         mRtcEngine.leaveChannel();
-    }
-
-    private void onRemoteUserLeft() {
-        FrameLayout container = findViewById(R.id.remote_view);
-        container.removeAllViews();
-    }
-
-    private void onRemoteUserVideoMuted(int uid, boolean muted) {
-        FrameLayout container = findViewById(R.id.remote_view);
-
-        SurfaceView surfaceView = (SurfaceView) container.getChildAt(0);
-
-        Object tag = surfaceView.getTag();
-        if (tag != null && (Integer) tag == uid) {
-            surfaceView.setVisibility(muted ? View.GONE : View.VISIBLE);
-        }
     }
 }

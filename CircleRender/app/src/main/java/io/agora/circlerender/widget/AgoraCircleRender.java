@@ -6,7 +6,6 @@ import android.graphics.SurfaceTexture;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.Matrix;
 import android.util.Log;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -48,8 +47,6 @@ public class AgoraCircleRender implements GLSurfaceView.Renderer {
     public void init(AgoraCircleRendererView glSurfaceView, BaseVideoRenderer baseVideoRenderer) {
         mCircleRendererView = glSurfaceView;
         mBaseVideoRenderer = baseVideoRenderer;
-        /*Matrix matrix = new Matrix();
-        matrix.setIdentityM(transformMatrix, 0);*/
     }
 
     /**
