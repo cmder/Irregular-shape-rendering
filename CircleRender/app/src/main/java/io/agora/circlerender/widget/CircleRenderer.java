@@ -119,6 +119,9 @@ public class CircleRenderer implements GLSurfaceView.Renderer {
         if (mSurfaceTexture != null) {
             mSurfaceTexture.release();
         }
+        if (mMyCameraManager != null){
+            mMyCameraManager.releaseCamera();
+        }
     }
 
     /**

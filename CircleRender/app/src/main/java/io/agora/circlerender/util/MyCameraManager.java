@@ -135,7 +135,6 @@ public class MyCameraManager {
     public void releaseCamera() {
         if (mCamera != null) {
             mCamera.release();
-            mCamera = null;
         }
     }
 }

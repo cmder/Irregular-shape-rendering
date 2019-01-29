@@ -47,6 +47,12 @@ public class MainActivity extends Activity {
         super.onPause();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mCircleRendererView.destroy();
+    }
+
     @NeedsPermission({Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE})
     public void init() {
         mContext = this;
