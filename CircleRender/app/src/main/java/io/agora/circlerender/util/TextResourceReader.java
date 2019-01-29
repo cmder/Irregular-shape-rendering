@@ -1,4 +1,4 @@
-package io.agora.util;
+package io.agora.circlerender.util;
 
 import android.content.Context;
 import android.content.res.Resources;
